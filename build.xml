@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+    	<project basedir="." default="generateReport" name="home">
+    	
+    	<property name="basedir" value="." />
+    	<property name="bin" value="${basedir}/bin" />
+    	<property name="testng-report-dir" value="${report-dir}/TestNGreport" /><property environment="env"/>
+	    <property name="debuglevel" value="source,lines,vars"/>
+	    <property name="target" value="1.8"/>
+	    <property name="src" value="${basedir}/src"/>
+    	<property name="lib" value="${basedir}/lib"/>
+		<property name="dest" value="${basedir}/build"/>
+		<property name="reports" value="${basedir}/Reports"/>
+	    
+	<!-- ====== Set the classpath ====  -->
+		<path id="classpath">
+			<pathelement location="${bin}" />
+			<fileset dir="${lib}">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+		
+		<!-- Delete directories  -->
+		<target name="delete-dir">
+			<delete dir="${bin}" />
+			<delete dir="${reports}" />
+		</target>
+		
+		<!-- Creating directories -->
+		<target name="create" depends="delete-dir">
+			<mkdir dir="${bin}" />
+			<mkdir dir="${reports}" />
+		</target>
+		
+		<!-- Compile the java code from ${src} into ${bin} -->
+		<target name="compile" depends="create">
+			<javac srcdir="${src}" classpathref="classpath" includeAntRuntime="No" destdir="${bin}" includes="**/*.java" />
+			<echo> /* Compiled Directory Classes */ </echo>
+		</target>
+		
+    			
+		<!-- Runs the file and generates Reportng report for TestNG-->
+    		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="classpath" /> 
+    		<target name = "testng" depends="compile">
+    		      <testng outputdir = "${reports}" classpathref="classpath"> 
+    		         <xmlfileset dir = "${src}" includes="testng.xml"/> 
+    		      </testng>
+    		   </target>
+    		
+    		<!-- Generate xslt reports -->
+    		    		<target name="generateReport" depends="testng">
+    		    		        <delete dir="${basedir}/testng-xslt">
+    		    		        </delete>
+    		    		        <mkdir dir="${basedir}/testng-xslt">
+    		    		        </mkdir>
+    		    		        <xslt in="${basedir}/test-output/testng-results.xml" style="${basedir}/testng-results.xsl" out="${basedir}/testng-xslt/index.html">
+    		    		            <param expression="${basedir}/testng-xslt/" name="testNgXslt.outputDir" />
+    		    		            <param expression="true" name="testNgXslt.sortTestCaseLinks" />
+    		    		            <param expression="FAIL,SKIP,PASS,CONF,BY_CLASS" name="testNgXslt.testDetailsFilter" />
+    		    		            <param expression="true" name="testNgXslt.showRuntimeTotals" />
+    		    		            <classpath refid="classpath" />
+    		    		        </xslt>
+    		    		    </target>
+		
+		
+		<!--<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="classpath" />
+		
+		<target name="testng-execution" depends="compile">
+			<mkdir dir="${testng-report-dir}" />
+			<testng outputdir="${testng-report-dir}" classpathref="classpath" useDefaultListeners="true">
+				<xmlfileset dir="${basedir}" includes="testng.xml" />
+			</testng>
+		</target>-->
+	
+
+</project>
